@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Turkey Studio — Game Development Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ─── Particles ─── -->
+  <canvas id="particles"></canvas>
+
+  <!-- ─── Nav ─── -->
+  <nav id="nav">
+    <div class="logo">Turkey<span>.</span></div>
+    <div class="nav-links" id="navLinks">
+      <a href="#games">Games</a>
+      <a href="#youtube">YouTube</a>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- ─── Hero ─── -->
+  <section class="hero">
+    <h1 class="fade-up delay-1">
+      We build<br>
+      <span>impossible</span><br>
+      realities.
+    </h1>
+    <p class="fade-up delay-2">Just one person making games — from VR to anything.</p>
+    <div class="hero-btns fade-up delay-3">
+      <a href="#games" class="btn btn-primary">See our games</a>
+    </div>
+    <div class="hero-scroll">
+      <span>Scroll</span>
+      <span class="arrow">↓</span>
+    </div>
+  </section>
+
+  <!-- ─── Games ─── -->
+  <section class="games-section" id="games">
+    <div class="section-label fade-up">Portfolio</div>
+    <h2 class="section-title fade-up delay-1">Our games</h2>
+    <div class="coming-soon fade-up delay-2">
+      <div class="icon">🎮</div>
+      <h3>Coming Soon</h3>
+      <div class="bar"></div>
+    </div>
+  </section>
+
+  <!-- ─── YouTube ─── -->
+  <section class="youtube-section" id="youtube">
+    <div class="section-label fade-up">Watch</div>
+    <h2 class="section-title fade-up delay-1">Follow the journey</h2>
+    <p class="section-sub fade-up delay-2">Devlogs, trailers, behind-the-scenes &amp; more on our YouTube channel.</p>
+    <a href="https://www.youtube.com/channel/UC1UzJmau9L2lxX9AkVUBMlg" target="_blank" rel="noopener noreferrer" class="youtube-card fade-up delay-3">
+      <div class="youtube-icon">▶</div>
+      <div class="info">
+        <div class="handle">Turkey Studio</div>
+        <div class="sub">youtube.com/channel/UC1UzJmau9L2lxX9AkVUBMlg</div>
+      </div>
+    </a>
+  </section>
+
+  <!-- ─── Footer ─── -->
+  <footer>
+    &copy; <span id="year"></span> Turkey Studio. Crafted with care.
+  </footer>
+
+  <script>
+    // ─── Particles ───
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 1.6 + 0.4;
+        this.speedX = (Math.random() - 0.5) * 0.3;
+        this.speedY = (Math.random() - 0.5) * 0.3;
+        this.opacity = Math.random() * 0.5 + 0.1;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+      }
+      draw() {
+        ctx.fillStyle = `rgba(245, 158, 11, ${this.opacity})`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < 100; i++) particles.push(new Particle());
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => { p.update(); p.draw(); });
+
+      // draw connections
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j += 5) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 130) {
+            ctx.strokeStyle = `rgba(245, 158, 11, ${0.06 * (1 - dist / 130)})`;
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    // ─── Nav scroll ───
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    // ─── Hamburger ───
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      navLinks.classList.toggle('open');
+    });
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('active');
+        navLinks.classList.remove('open');
+      });
+    });
+
+    // ─── Scroll reveal ───
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // ─── Footer year ───
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // ─── Smooth anchor fallback ───
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const id = a.getAttribute('href');
+        if (id === '#') return;
+        const target = document.querySelector(id);
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+  </script>
+</body>
+</html>
